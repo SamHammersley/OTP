@@ -3,15 +3,15 @@ package authentication;
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;
 import java.security.SecureRandom;
+import java.util.Optional;
 
 import javax.crypto.Mac;
 import javax.crypto.spec.SecretKeySpec;
 
-import authentication.keys.KeyCache;
-import authentication.specifications.OtpGeneratorSpecification;
-
-import com.google.common.base.Strings;
 import com.google.common.io.BaseEncoding;
+
+import authentication.keys.KeyCache;
+import authentication.specifications.OtpSpecification;
 
 /**
  * Structure for OTP algorithms. Implementations limited to HOTP and TOTP, these
@@ -31,7 +31,7 @@ import com.google.common.io.BaseEncoding;
  *      href="http://en.wikipedia.org/wiki/HMAC-based_One-time_Password_Algorithm">
  *      HMAC-based One Time Password algorithm</a>
  */
-public abstract class OneTimePasswordFactory<T extends OtpGeneratorSpecification> {
+public abstract class OneTimePasswordFactory<T extends OtpSpecification> {
 	
 	/**
 	 * Contains specific details required for this factory to create valid passwords.
@@ -80,10 +80,15 @@ public abstract class OneTimePasswordFactory<T extends OtpGeneratorSpecification
 	 * @param identifier the identifier that is used to get the secret key.
 	 * @param password the password being checked.
 	 * @return <code>true</code> if the password is valid.
-	 * @throws Exception when either the identifier doesn't exist or there was a problem getting the password from the data source.
 	 */
-	public boolean validatePasswordForIdentifier(String identifier, int password) throws Exception {
-		return validatePassword(repository.get(identifier), password);
+	public boolean validateForIdentifier(String identifier, int password) {
+		Optional<String> value = repository.get(identifier);
+
+		if (!value.isPresent()) {
+			return false;
+		}
+		
+		return validatePassword(value.get(), password);
 	}
 
 	/**
@@ -96,11 +101,12 @@ public abstract class OneTimePasswordFactory<T extends OtpGeneratorSpecification
 	 * @param message
 	 *            the message
 	 * @return the (6-digit) one time password.
+	 * @throws InvalidKeyException 
 	 */
-	public int createPassword(byte[] secretKey, byte[] message) {
+	protected int createPassword(byte[] secretKey, byte[] message) {
 		byte[] hash = createHMACHash(secretKey, message);
-		int truncatedHash = truncate(hash);
-		return Integer.parseInt(Strings.padStart(Integer.toString(truncatedHash), specification.getPasswordLength(), '0'));
+		
+		return truncate(hash);
 	}
 	
 	/**
@@ -111,9 +117,8 @@ public abstract class OneTimePasswordFactory<T extends OtpGeneratorSpecification
 	 * 
 	 * @param identifier the identifier associated with the secret key.
 	 * @return a Base32 encoded string, the secret key.
-	 * @throws Exception if there is a problem storing the key.
 	 */
-	public String createKey(String identifier) throws Exception {
+	public String createKey(String identifier) {
 		int keyLength = specification.getKeyLength();
 		byte[] key = new byte[keyLength];
 		random.nextBytes(key);
@@ -133,8 +138,7 @@ public abstract class OneTimePasswordFactory<T extends OtpGeneratorSpecification
 	 * 
 	 * <p>
 	 * To prevent incorrect interpretation of the value, the most significant
-	 * bit is truncated. If it was not, the value may be interpreted as a
-	 * negative as primitive data types are signed.
+	 * bit is truncated. This is due to primitive data types being signed.
 	 * </p>
 	 * 
 	 * @param hash
@@ -150,6 +154,7 @@ public abstract class OneTimePasswordFactory<T extends OtpGeneratorSpecification
 			truncated <<= 8;
 			truncated += (hash[i] & 0xFF);
 		}
+		
 		truncated &= ~(1 << 31);
 		return truncated %= Math.pow(10, specification.getPasswordLength());
 	}

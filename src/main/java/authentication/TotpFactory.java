@@ -2,6 +2,7 @@ package authentication;
 
 import java.security.SecureRandom;
 import java.time.Instant;
+import java.util.Objects;
 import java.util.stream.IntStream;
 
 import authentication.keys.KeyCache;
@@ -47,11 +48,16 @@ public final class TotpFactory extends OneTimePasswordFactory<TotpSpecification>
 	 */
 	@Override
 	protected boolean validatePassword(String encodedKey, int password) {
+		Objects.requireNonNull(encodedKey); // this shouldn't happen, but just in case.
+		
 		byte[] decodedKey = BaseEncoding.base32().decode(encodedKey);
+		
 		int stepSize = specification.getStepSize();
 		int windowSize = specification.getWindowSize();
 		long currentTime = Instant.now().getEpochSecond();
+		
 		long currentTimeStep = currentTime / stepSize;
+		
 		return IntStream.range(-(windowSize - 1) / 2, windowSize / 2 + 1)
 				.mapToLong(i -> createPassword(decodedKey, Longs.toByteArray(currentTimeStep + i)))
 				.anyMatch(p -> p == password);
