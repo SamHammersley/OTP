@@ -2,7 +2,7 @@ package authentication.specifications;
 
 import authentication.SecureHashAlgorithm;
 
-public abstract class OtpGeneratorSpecification {
+public abstract class OtpSpecification {
 
 	private final int passwordLength;
 	
@@ -10,7 +10,7 @@ public abstract class OtpGeneratorSpecification {
 	
 	private final SecureHashAlgorithm algorithm;
 	
-	public OtpGeneratorSpecification(int passwordLength, int keyLength, SecureHashAlgorithm algorithm) {
+	public OtpSpecification(int passwordLength, int keyLength, SecureHashAlgorithm algorithm) {
 		this.passwordLength = passwordLength;
 		this.keyLength = keyLength;
 		this.algorithm = algorithm;
