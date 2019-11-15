@@ -75,15 +75,14 @@ public final class PasswordFactory {
 	 */
 	private int extractPassword(byte[] hmac) {	
 		int offset = hmac[hmac.length - 1] & 0xF;
+
 		int password = 0;
-		
 		for (int i = offset; i < offset + 4; ++i) {
 			password <<= 8;
 			password += (hmac[i] & 0xFF);
 		}
-		
-		password &= TRUNCATION_BIT_MASK;
-		return password %= PASSWORD_MODULUS_DIVISOR;
+
+		return (password & TRUNCATION_BIT_MASK) % PASSWORD_MODULUS_DIVISOR;
 	}
 
 	/**
