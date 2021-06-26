@@ -35,10 +35,10 @@ public abstract class PasswordValidation {
 	 * @param password 
 	 * @return <code>true</code> if the specified password is valid.
 	 */
-	public boolean validateForIdentifier(String identifier, int password) {
+	public boolean validateForIdentifier(String identifier, String password, int digits) {
 		SecretRepository r = repository.orElseThrow(SUPPLIER);
 		Optional<SharedSecret> key = r.get(identifier);
-		return key.map(k -> validate(k, password)).get();
+		return key.map(k -> validate(k, password, digits)).get();
 	}
 
 	private static final Supplier<UnsupportedOperationException> SUPPLIER =
@@ -52,17 +52,17 @@ public abstract class PasswordValidation {
 	 * 
 	 * @return {@code true} if the password is valid.
 	 */
-	public boolean validate(SharedSecret secret, int password) {
-		return validPasswords(secret.getSecret()).contains(password);
+	public boolean validate(SharedSecret secret, String password, int digits) {
+		return validPasswords(secret.getSecret(), digits).contains(password);
 	}
 	
 	/**
-	 * Produces a fixed {@link Set} of integers which are valid passwords for
+	 * Produces a fixed {@link Set} of strings which are valid passwords for
 	 * this moment in time.
 	 * 
 	 * @param rawSecret the raw data of a {@link SharedSecret}.
 	 * @return a fixed {@link Set} of valid passwords.
 	 */
-	protected abstract Set<Integer> validPasswords(byte[] rawSecret);
+	protected abstract Set<String> validPasswords(byte[] rawSecret, int digits);
 
 }

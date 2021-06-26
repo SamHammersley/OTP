@@ -3,6 +3,7 @@ package com.samhg.authentication;
 import java.time.Instant;
 import java.util.Optional;
 import java.util.Set;
+import java.util.function.IntFunction;
 import java.util.function.IntUnaryOperator;
 import java.util.stream.Collectors;
 import java.util.stream.IntStream;
@@ -37,14 +38,19 @@ public class TimeBasedValidation extends PasswordValidation {
 	}
 
 	@Override
-	protected Set<Integer> validPasswords(byte[] rawSecret) {
+	protected Set<String> validPasswords(byte[] rawSecret, int digits) {
 		long currentTime = Instant.now().getEpochSecond();
 		long currentTimeStep = currentTime / STEP_SIZE;
 		
 		IntStream window = IntStream.range(-(WINDOW_SIZE - 1) / 2, WINDOW_SIZE / 2 + 1);
-		IntUnaryOperator mapper = i -> passwordFactory.createPassword(rawSecret, Longs.toByteArray(currentTimeStep + i));
 
-		return window.map(mapper).boxed().collect(Collectors.toSet());
+		IntFunction<String> mapper = i -> {
+			byte[] movingFactorBytes = Longs.toByteArray(currentTimeStep + i);
+
+			return passwordFactory.generatePassword(rawSecret, movingFactorBytes, HmacAlgorithm.SHA1, digits);
+		};
+
+		return window.mapToObj(mapper).collect(Collectors.toSet());
 	}
 
 }
