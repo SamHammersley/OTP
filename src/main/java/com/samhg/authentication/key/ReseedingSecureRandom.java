@@ -1,7 +1,6 @@
 package com.samhg.authentication.key;
 
-import java.security.NoSuchAlgorithmException;
-import java.security.NoSuchProviderException;
+import java.security.GeneralSecurityException;
 import java.security.SecureRandom;
 import java.util.concurrent.TimeUnit;
 
@@ -10,7 +9,7 @@ public final class ReseedingSecureRandom {
 	/**
 	 * A {@link SecureRandom} for PRNG.
 	 */
-	private SecureRandom random;
+	private final SecureRandom random = getInstance();
 	
 	/**
 	 * The amount of times {@link #random} has been used.
@@ -38,24 +37,36 @@ public final class ReseedingSecureRandom {
 	private static final String ALGORITHM = "SHA1PRNG", PROVIDER = "SUN";
 	
 	/**
-	 * Checks if random needs to be re-instantiated {@link #random} in order to
-	 * re-seed and does so if needs be.
+	 * Checks if random requires reseeding. This is the case when there have been either {@link #MAXIMUM_CALLS} or
+	 * {@link #MAXIMUM_TIME_DELTA} has elapsed between calls to the random.
 	 * 
 	 * This method should be called before any use of {@link #random} to assure that
 	 * it is re-seeded periodically.
 	 */
 	private void updateRandom() {
-		if (random == null || callCount++ >= MAXIMUM_CALLS || System.nanoTime() - lastUpdate >= MAXIMUM_TIME_DELTA) {
-			try {
-				random = SecureRandom.getInstance(ALGORITHM, PROVIDER);
-				lastUpdate = System.nanoTime();
-			} catch (NoSuchAlgorithmException | NoSuchProviderException e) {
-				// Shouldn't ever really happen.
-				throw new RuntimeException("Failed getting SecureRandom instance.", e);
-			}
+		if (callCount++ >= MAXIMUM_CALLS || System.nanoTime() - lastUpdate >= MAXIMUM_TIME_DELTA) {
+			return;
+		}
+
+		random.reseed();
+		lastUpdate = System.nanoTime();
+	}
+
+	/**
+	 * Gets an instance of {@link SecureRandom} using {@link #ALGORITHM} and {@link #PROVIDER} as the
+	 * algorithm and provider parameters respectively.
+	 *
+	 * @return a {@link SecureRandom} instance.
+	 */
+	private SecureRandom getInstance() {
+		try {
+			return SecureRandom.getInstance(ALGORITHM, PROVIDER);
+
+		} catch (GeneralSecurityException e) {
+			throw new RuntimeException("Failed to get SecureRandom instance.");
 		}
 	}
-	
+
 	/**
 	 * Gets the next bytes from {@link #random} and stores them in an array.
 	 * 
@@ -64,8 +75,10 @@ public final class ReseedingSecureRandom {
 	 */
 	public byte[] getNextBytes(int size) {
 		updateRandom();
+
 		byte[] bytes = new byte[size];
 		random.nextBytes(bytes);
+
 		return bytes;
 	}
 	
