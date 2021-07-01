@@ -1,4 +1,4 @@
-package com.samhg.authentication;
+package com.samhg.authentication.generation;
 
 /**
  * An enumeration of the available HMAC algorithms used in generation of passwords.

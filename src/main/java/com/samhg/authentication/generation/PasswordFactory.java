@@ -1,4 +1,4 @@
-package com.samhg.authentication;
+package com.samhg.authentication.generation;
 
 import java.security.InvalidKeyException;
 import java.security.NoSuchAlgorithmException;

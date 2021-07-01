@@ -1,6 +1,6 @@
 package com.samhg.authentication.validation;
 
-import com.samhg.authentication.HmacAlgorithm;
+import com.samhg.authentication.generation.HmacAlgorithm;
 
 public final class PasswordValidationRequest {
 

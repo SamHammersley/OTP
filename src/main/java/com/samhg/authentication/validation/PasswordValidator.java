@@ -1,7 +1,7 @@
 package com.samhg.authentication.validation;
 
 import com.google.common.primitives.Longs;
-import com.samhg.authentication.PasswordFactory;
+import com.samhg.authentication.generation.PasswordFactory;
 
 import java.util.Collection;
 import java.util.List;
