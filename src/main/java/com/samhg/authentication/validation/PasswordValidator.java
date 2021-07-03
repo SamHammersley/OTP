@@ -35,7 +35,7 @@ public final class PasswordValidator {
      * @param request the request to validate the password for, this contains the password and other parameters.
      * @param observers observers that should be invoked upon validating a request
      */
-    public void validate(PasswordValidationRequest request, Collection<ValidityObserver> observers) {
+    public void validate(PasswordValidationRequest request, Collection<ValidationObserver> observers) {
         PasswordType passwordType = request.getType();
 
         WindowStrategy windowStrategy = passwordType.getWindowStrategy();
