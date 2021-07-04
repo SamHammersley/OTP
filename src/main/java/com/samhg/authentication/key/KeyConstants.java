@@ -35,6 +35,6 @@ public final class KeyConstants {
      *
      * As specified by RFC 4226, base32 is used to encode secret keys.
      */
-    public static final BaseEncoding ENCODING_SCHEME = BaseEncoding.base32();
+    public static final BaseEncoding KEY_ENCODING_SCHEME = BaseEncoding.base32();
 
 }

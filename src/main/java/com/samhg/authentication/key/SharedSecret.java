@@ -43,5 +43,4 @@ public final class SharedSecret {
 	public String getEncodedSecret() {
 		return encodedSecret;
 	}
-	
 }
