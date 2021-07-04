@@ -4,6 +4,8 @@ import com.samhg.authentication.generation.HmacAlgorithm;
 
 public final class PasswordValidationRequest {
 
+    private final String identifier;
+
     private final String password;
 
     private final byte[] secret;
@@ -16,14 +18,19 @@ public final class PasswordValidationRequest {
 
     private final PasswordType type;
 
-    public PasswordValidationRequest(String password, byte[] secret, int digits, HmacAlgorithm algorithm,
+    public PasswordValidationRequest(String identifier, String password, byte[] secret, int digits, HmacAlgorithm algorithm,
                                      long movingFactor, PasswordType type) {
+        this.identifier = identifier;
         this.password = password;
         this.secret = secret;
         this.digits = digits;
         this.algorithm = algorithm;
         this.movingFactor = movingFactor;
         this.type = type;
+    }
+
+    public String getIdentifier() {
+        return identifier;
     }
 
     public String getPassword() {

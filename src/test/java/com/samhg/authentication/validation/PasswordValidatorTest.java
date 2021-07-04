@@ -14,7 +14,7 @@ public final class PasswordValidatorTest {
 
     @Test
     public void testValidate() {
-        PasswordValidationRequest request = new PasswordValidationRequest("257225", SECRET_KEY, 6,
+        PasswordValidationRequest request = new PasswordValidationRequest("sammy", "257225", SECRET_KEY, 6,
                 HmacAlgorithm.SHA1, 0, PasswordType.EVENT_BASED);
 
         PasswordFactory factory = new PasswordFactory();
