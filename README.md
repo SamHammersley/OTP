@@ -1,4 +1,2 @@
-# Totp
-One-time password generator program supporting the HMAC-Based One-time Password (HOTP) algorithm specified in RFC 4226 and the Time-based One-time Password (TOTP) algorithm specified in RFC 6238.
-
-The parameters can be customized to match those of specific implementations such as Google Authenticator etc. 
+# One Time Password validator
+A One Time Password validator, supporting both hotp (event-based) and totp (time-based) passwords, following the guidance and recommendations of [RFC 4226](https://datatracker.ietf.org/doc/html/rfc4226/) and [RFC 6238](https://datatracker.ietf.org/doc/html/rfc6238).
